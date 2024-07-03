@@ -1,13 +1,16 @@
 #### H. AMERICANUS ####
 #Updated code used for the 2024 publication.
- #NB: for file names that include "dimorphism" in the text, read it as "disparity"
+ #NB: for file names that include "disparity" in the text, read it as "disparity"
  
 rm(list=ls(all=TRUE))
 library(ggplot2)
 library(tidyr)
 library(reshape2)
 library(RColorBrewer)
-library("ggpubr")
+library(ggpubr)
+library(Hmisc)
+
+setwd('C:/Users/kaalt/Desktop/Lobster Manuscript/Theberge_et_al_review1/MS_Lobster_Plots_r1')
  
 #Could adjust v-notching compliance here
 vcomp <- seq(0,1, by= 0.1) # 0.9 (Mazur 2019) ~0.7 (Murphy 2018)
@@ -280,6 +283,8 @@ pmatbind <- cbind(ageplot,pmat)
 #Individual growth L then W
 pdf("am_growth.pdf",   width=5, height=5 )
 matplot(Lbind[,2:3],x=Lbind[,1],xlim = c(0,40), ylim = c(0,180), type="l",lwd=2, las=1, xlab="Age (years)", ylab="Carapace Length (mm)", col=pal)
+minor.tick(nx = 2, ny = 5,  
+           tick.ratio = 0.5) 
 legend("bottomright",                    
        legend = c("Females", "Males"),
        col = pal,
@@ -521,7 +526,7 @@ sizefig <- function(
   pdf(name,   width=6, height=4 )
   ggplot(data=f, aes(fill=variable,x=Size_Class,y=value))+
     geom_bar(stat='identity',position = 'dodge')+
-    xlab("Size Bin (mm CL)")+
+    xlab("Size (mm CL)")+
     ylab("Abundance of Mature Individuals")+
     scale_fill_manual(name="Sex",breaks=c("Females","Males"),values=pal)+
     scale_x_discrete(labels=binnames)+
@@ -530,8 +535,9 @@ sizefig <- function(
     geom_vline(xintercept = 8.5, color="red") +
     theme_classic()+
     theme(legend.position = c(0.9, 0.85),legend.background = element_rect(fill = "white"),
-          axis.text.x=element_text(angle=45,hjust=1,vjust=1, size=18),axis.text.y=element_text(size=15),
-          axis.title = element_text(size=18))
+          axis.text.x=element_text(angle=45,hjust=1,vjust=1, size=20),
+          axis.text.y=element_text(size=18),
+          axis.title = element_text(size=20))
   }
 
 
@@ -600,7 +606,7 @@ f3and9 <- ggarrange(s03+theme(axis.text.x = element_blank(), axis.title.x = elem
                     labels=c("       No female protection","      No female protection", 
                              "     1-year female protection", "    1-year female protection",
                              "     4-year female protection","    4-year female protection"),
-                    ncol=2, nrow=3, hjust=-0.7,align = c("v"),
+                    ncol=2, nrow=3, hjust=-0.7,align = "v",
                     common.legend = TRUE, legend = "bottom", font.label = list(size=18))
 f3and9
 annotate_figure(f3and9, top = text_grob("F = 0.3                                                                  F = 0.9",
@@ -653,16 +659,22 @@ pdf(name,   width=8, height=4 )
 ggplot(NULL, aes())+
   geom_bar(data=fall, aes(fill=variable,x=Size_Class,y=value),stat='identity',position = 'dodge')+
   geom_bar(data=f, aes(fill=variable,x=Size_Class,y=value),stat='identity',position = 'dodge')+
-  xlab("Size Bin (mm CL)")+
+  xlab("Size (mm CL)")+
   ylab("Total Abundance")+
   scale_x_discrete(labels=binnames)+
   ylim(0,11.5e+08)+
+  geom_vline(xintercept = 2.5, color="red") +
+  geom_vline(xintercept = 8.5, color="red") +
   theme_classic()+
   #ggtitle("H. americanus")+
   theme(plot.title = element_text(color="black", size=14, face="italic"))+
   scale_fill_manual(name="Group",labels=c("Juvenile Females","Juvenile Males","Mature Females","Mature Males"),values = colors2)+
-  theme(axis.text.x=element_text(angle=45,hjust=1,vjust=1, size=18),axis.text.y=element_text(size=15),
-        axis.title = element_text(size=18))
+  theme(
+    #axis.text.x=element_text(angle=45,hjust=1,vjust=1, size=18),          
+    legend.title=element_text(size=20,face="bold"), legend.text=element_text(size=18),
+    axis.text.x = element_blank(),axis.title.x = element_blank(),
+    axis.text.y=element_text(size=18),
+    axis.title = element_text(size=20))
 }
 
 #unfished with immature
@@ -674,11 +686,12 @@ dev.off()
 #stack with mature only plot
 pdf("am_size_nofish_im_mat.pdf",    width = 14, height = 15 )
 nofish_im_mat <- ggarrange(sim00,s00,
-                    ncol=1, nrow=2, common.legend = TRUE, legend = "bottom",
-                    labels=c("A","B"), hjust=-7, font.label = list(size=20))
+                    ncol=1, nrow=2, common.legend = TRUE, legend = "bottom", align = "hv",
+                    font.label = list(size=20),
+                    labels=c("A","B"), hjust=-7.05)
 nofish_im_mat
 annotate_figure(nofish_im_mat, top = text_grob("H. americanus",
-                                        face = "italic", color = "black", size = 24))
+                                        face = "italic", color = "black", size = 26))
 dev.off()
 
 
@@ -720,11 +733,11 @@ ggplot(wb[v,],aes(color=Sex,group=Sex,x=Fishing,y=value))+
   theme(legend.position = c(0.9, 0.85),legend.background = element_rect(fill = "white"))
 }
 
-sizefig3(v=1:20,name = "am_size_0avg_dimorphism.pdf") #no female protections
+sizefig3(v=1:20,name = "am_size_0avg_disparity.pdf") #no female protections
 dev.off()
-sizefig3(v=21:40,name = "am_size_1avg_dimorphism.pdf") #vmax=1
+sizefig3(v=21:40,name = "am_size_1avg_disparity.pdf") #vmax=1
 dev.off()
-sizefig3(v=41:60,name = "am_size_4avg_dimorphism.pdf") #vmax=4
+sizefig3(v=41:60,name = "am_size_4avg_disparity.pdf") #vmax=4
 dev.off()
 
 
